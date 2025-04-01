@@ -22,24 +22,36 @@ class AppSignatureHelper(context: Context) : ContextWrapper(context) {
     }
 
     fun getAppSignatures(): ArrayList<String> {
-        val appCodes = ArrayList<String>()
+    val appCodes = ArrayList<String>()
 
-        return try {
-            // Get all package signatures for the current package
-            val packageName = packageName
-            val packageManager = packageManager
-            val signatures = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNING_CERTIFICATES).signingInfo?.apkContentsSigners ?: emptyArray()
+    try {
+        val packageName = packageName
+        val packageManager = packageManager
 
-            // For each signature create a compatible hash
-            signatures
-                    .mapNotNull { hash(packageName, it.toCharsString()) }
-                    .mapTo(appCodes) { it }
-            return appCodes
-        } catch (e: PackageManager.NameNotFoundException) {
-            Log.e(TAG, "Unable to find package to obtain hash.", e)
-            ArrayList()
+        val signatures = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            packageManager.getPackageInfo(
+                packageName,
+                PackageManager.GET_SIGNING_CERTIFICATES
+            ).signingInfo?.apkContentsSigners ?: emptyArray()
+        } else {
+            @Suppress("DEPRECATION")
+            packageManager.getPackageInfo(
+                packageName,
+                PackageManager.GET_SIGNATURES
+            ).signatures ?: emptyArray()
         }
+
+        signatures
+            .mapNotNull { hash(packageName, it.toCharsString()) }
+            .mapTo(appCodes) { it }
+
+    } catch (e: PackageManager.NameNotFoundException) {
+        Log.e(TAG, "Unable to find package to obtain hash.", e)
     }
+
+    return appCodes
+}
+
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     private fun hash(packageName: String, signature: String): String? {
