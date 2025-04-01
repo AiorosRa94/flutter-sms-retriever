@@ -27,7 +27,7 @@ apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
 
-    namespace 'me.arsam.sms_retriever'
+        namespace 'com.caranty.android_sms_retriever' 
 
     compileSdkVersion 35
 
