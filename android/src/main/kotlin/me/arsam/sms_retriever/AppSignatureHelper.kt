@@ -21,7 +21,7 @@ class AppSignatureHelper(context: Context) : ContextWrapper(context) {
         private const val NUM_BASE64_CHAR = 11
     }
 
-    fun getAppSignatures(): ArrayList<String> {
+fun getAppSignatures(): ArrayList<String> {
     val appCodes = ArrayList<String>()
 
     try {
@@ -29,16 +29,19 @@ class AppSignatureHelper(context: Context) : ContextWrapper(context) {
         val packageManager = packageManager
 
         val signatures = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            packageManager.getPackageInfo(
-                packageName,
-                PackageManager.GET_SIGNING_CERTIFICATES
-            ).signingInfo?.apkContentsSigners ?: emptyArray()
+            packageManager
+                .getPackageInfo(packageName, PackageManager.GET_SIGNING_CERTIFICATES)
+                .signingInfo
+                ?.apkContentsSigners
+                ?.filterNotNull()
+                ?.toTypedArray() ?: emptyArray()
         } else {
             @Suppress("DEPRECATION")
-            packageManager.getPackageInfo(
-                packageName,
-                PackageManager.GET_SIGNATURES
-            ).signatures ?: emptyArray()
+            packageManager
+                .getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
+                .signatures
+                ?.filterNotNull()
+                ?.toTypedArray() ?: emptyArray()
         }
 
         signatures
@@ -51,6 +54,7 @@ class AppSignatureHelper(context: Context) : ContextWrapper(context) {
 
     return appCodes
 }
+
 
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
