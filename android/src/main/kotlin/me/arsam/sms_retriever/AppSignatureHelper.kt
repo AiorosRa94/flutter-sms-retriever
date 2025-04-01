@@ -28,7 +28,7 @@ class AppSignatureHelper(context: Context) : ContextWrapper(context) {
             // Get all package signatures for the current package
             val packageName = packageName
             val packageManager = packageManager
-            val signatures = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES).signatures
+            val signatures = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNING_CERTIFICATES).signingInfo?.apkContentsSigners ?: emptyArray()
 
             // For each signature create a compatible hash
             signatures
