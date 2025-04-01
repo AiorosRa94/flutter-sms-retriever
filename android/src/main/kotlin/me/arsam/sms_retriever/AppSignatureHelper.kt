@@ -29,20 +29,19 @@ fun getAppSignatures(): ArrayList<String> {
         val packageManager = packageManager
 
         val signatures = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            packageManager.getPackageInfo(
-                packageName,
-                PackageManager.GET_SIGNING_CERTIFICATES
-            ).signingInfo?.apkContentsSigners ?: emptyArray()
+            val rawSignatures = packageManager
+                .getPackageInfo(packageName, PackageManager.GET_SIGNING_CERTIFICATES)
+                .signingInfo?.apkContentsSigners
+            rawSignatures?.filterNotNull()?.toTypedArray() ?: emptyArray()
         } else {
             @Suppress("DEPRECATION")
             packageManager.getPackageInfo(
                 packageName,
                 PackageManager.GET_SIGNATURES
-            ).signatures ?: emptyArray()
+            ).signatures?.filterNotNull()?.toTypedArray() ?: emptyArray()
         }
 
         signatures
-            .filterNotNull()
             .mapNotNull { hash(packageName, it.toCharsString()) }
             .mapTo(appCodes) { it }
 
@@ -52,6 +51,7 @@ fun getAppSignatures(): ArrayList<String> {
 
     return appCodes
 }
+
 
 
 
